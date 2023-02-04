@@ -9,6 +9,8 @@ import {
 } from '../schemas/user.schema';
 import { ApolloError } from 'apollo-server-express';
 import * as moment from 'moment-timezone';
+import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private userModel: Model<User>) {}
@@ -22,10 +24,15 @@ export class UsersService {
     }
   }
 
+  /**
+   * Create new Account
+   * @param user
+   */
   async createUser(user: UserInputType) {
     try {
       // CHECK PASSWORD
       let password = '';
+      const saltRounds = 10;
       if (user.password1 !== user.password2) {
         throw new ApolloError(`DON'T MATCH THE PASSWORD`);
       } else {
@@ -39,7 +46,7 @@ export class UsersService {
       // CREATE ACCOUNT
       const data = {
         ...user,
-        password: password,
+        password: await bcrypt.hash(password, saltRounds),
         date_created: moment().utc().format(),
       };
 
@@ -48,6 +55,13 @@ export class UsersService {
         uid: result._id,
         ...data,
       };
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  async login(user: UserLoginInputType) {
+    try {
     } catch (e) {
       throw new ApolloError(e);
     }

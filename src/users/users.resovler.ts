@@ -30,4 +30,13 @@ export class UsersResolver {
       throw new ApolloError(e);
     }
   }
+
+  @Mutation(() => User)
+  async login(@Args('inpout') user: UserLoginInputType) {
+    try {
+      return await this.usersService.login(user);
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
 }
