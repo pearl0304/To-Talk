@@ -1,5 +1,9 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { User, UserInputType } from '../schemas/user.schema';
+import {
+  User,
+  UserInputType,
+  UserLoginInputType,
+} from '../schemas/user.schema';
 import { ApolloError } from 'apollo-server-express';
 import { UsersService } from './users.service';
 

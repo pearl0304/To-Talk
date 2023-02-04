@@ -9,7 +9,7 @@ import { UsersModule } from './users/users.module';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: '/src/schema.gql',
+      autoSchemaFile: 'schema.gql',
     }),
     ConfigModule.forRoot({
       envFilePath: '.env',

@@ -62,3 +62,13 @@ export class UserInputType {
   @Field()
   password2: string;
 }
+
+@ArgsType()
+@InputType()
+export class UserLoginInputType {
+  @Field()
+  email: string;
+
+  @Field()
+  password: string;
+}

@@ -5,8 +5,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const PORT = 9001;
   await app.listen(PORT).then(() => {
-    console.log(`http://localhost:${PORT}`);
+    console.log(`http://localhost:${PORT}/graphql`);
   });
 }
-
 bootstrap();
