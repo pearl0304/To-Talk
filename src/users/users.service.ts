@@ -6,11 +6,13 @@ import {
   UserInputType,
   UserLoginInputType,
   UserSchema,
+  UserUpdateInputType,
 } from '../schemas/user.schema';
 import { ApolloError } from 'apollo-server-express';
 import * as moment from 'moment-timezone';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth/auth.service';
+import { errorMessages } from '../errorMessages';
 
 @Injectable()
 export class UsersService {
@@ -37,7 +39,7 @@ export class UsersService {
       let password = '';
       const saltRounds = 10;
       if (user.password1 !== user.password2) {
-        throw new ApolloError(`DON'T MATCH THE PASSWORD`);
+        errorMessages('001');
       } else {
         password = user.password1;
         delete user.password1;
@@ -45,7 +47,7 @@ export class UsersService {
       }
       // CHECK DUPLICATED EMAIL
       const check_email = await this.findOneByEmail(user.email);
-      if (check_email) throw new ApolloError('DUPLICATED EMAIL');
+      if (check_email) errorMessages('002');
 
       // CREATE ACCOUNT
       const data = {
@@ -64,6 +66,10 @@ export class UsersService {
     }
   }
 
+  /**
+   * Login and create JWT TOKEN
+   * @param input
+   */
   async login(input: UserLoginInputType) {
     try {
       const user = await this.authService.validateUser(
@@ -71,7 +77,7 @@ export class UsersService {
         input.password,
       );
       if (!user) {
-        throw new ApolloError(`NO USER INFO`);
+        errorMessages('005');
       } else {
         const access_token = await this.authService.generateUserCredentials(
           user,
@@ -83,6 +89,64 @@ export class UsersService {
 
         return user;
       }
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  async updateUserInfo(user: User, uid: string, input: UserUpdateInputType) {
+    try {
+      // CHECK USER INFO
+      if (user.uid !== uid) errorMessages('004');
+      const check_user = await this.userModel.findOne({ _id: uid }).exec();
+      if (!check_user) errorMessages('005');
+
+      // UPDATE DISPLAY NAME
+      if (input.displayName) {
+        const check_displayName = await this.userModel
+          .findOne({
+            displayName: input.displayName,
+          })
+          .exec();
+        if (check_displayName) errorMessages('003');
+      }
+
+      // UPDATE PASSWORD
+      if (input.password1) {
+        let password = '';
+        const saltRounds = 10;
+        if (input.password1 !== input.password2) {
+          errorMessages('001');
+        } else {
+          password = input.password1;
+          delete input.password1;
+          delete input.password2;
+          input.password = await bcrypt.hash(password, saltRounds);
+        }
+      }
+
+      // TODO :: UPDATE PROFILE
+
+      const data = {
+        ...input,
+        date_updated: moment().utc().format(),
+      };
+
+      await this.userModel.findOneAndUpdate(
+        { _id: uid },
+        { ...data },
+        { bew: true },
+      );
+
+      const result = {
+        uid: uid,
+        email: user.email,
+        displayName: input.displayName ? input.displayName : user.displayName,
+        photoURL: input.photoURL ? input.photoURL : user.photoURL,
+        intro: input.intro ? input.intro : user.intro,
+      };
+
+      return result;
     } catch (e) {
       throw new ApolloError(e);
     }

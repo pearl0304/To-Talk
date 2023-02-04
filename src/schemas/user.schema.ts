@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType, ArgsType, InputType } from '@nestjs/graphql';
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
+import { IsEmail } from 'class-validator';
 
 export const UserSchema = new mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
@@ -13,6 +14,7 @@ export const UserSchema = new mongoose.Schema({
   date_created: String,
   date_updated: String,
 });
+
 @ObjectType()
 export class User extends Document {
   @Field(() => ID)
@@ -44,6 +46,7 @@ export class User extends Document {
 @ArgsType()
 @InputType()
 export class UserInputType {
+  @IsEmail()
   @Field()
   email: string;
 
@@ -66,9 +69,32 @@ export class UserInputType {
 @ArgsType()
 @InputType()
 export class UserLoginInputType {
+  @IsEmail()
   @Field()
   email: string;
 
   @Field()
+  password: string;
+}
+
+@ArgsType()
+@InputType()
+export class UserUpdateInputType {
+  @Field({ nullable: true })
+  displayName: string;
+
+  @Field({ nullable: true })
+  photoURL: string;
+
+  @Field({ nullable: true })
+  intro: string;
+
+  @Field({ nullable: true })
+  password1: string;
+
+  @Field({ nullable: true })
+  password2: string;
+
+  @Field({ nullable: true })
   password: string;
 }

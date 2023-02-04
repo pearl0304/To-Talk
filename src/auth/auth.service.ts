@@ -2,7 +2,6 @@ import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { User } from '../schemas/user.schema';
 import { JwtService } from '@nestjs/jwt';
-import { JwtStrategy } from './jwt.strategy';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
