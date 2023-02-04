@@ -29,6 +29,14 @@ export class UsersService {
     }
   }
 
+  async findOneByUid(uid: string) {
+    try {
+      return await this.userModel.findOne({ _id: uid }).exec();
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
   /**
    * Create new Account
    * @param user
@@ -53,6 +61,7 @@ export class UsersService {
       const data = {
         ...user,
         password: await bcrypt.hash(password, saltRounds),
+        level: 1,
         date_created: moment().utc().format(),
       };
 
@@ -94,11 +103,17 @@ export class UsersService {
     }
   }
 
+  /**
+   * Update User Information
+   * @param user
+   * @param uid
+   * @param input
+   */
   async updateUserInfo(user: User, uid: string, input: UserUpdateInputType) {
     try {
       // CHECK USER INFO
       if (user.uid !== uid) errorMessages('004');
-      const check_user = await this.userModel.findOne({ _id: uid }).exec();
+      const check_user = await this.findOneByUid(uid);
       if (!check_user) errorMessages('005');
 
       // UPDATE DISPLAY NAME
@@ -135,7 +150,7 @@ export class UsersService {
       await this.userModel.findOneAndUpdate(
         { _id: uid },
         { ...data },
-        { bew: true },
+        { new: true },
       );
 
       const result = {
@@ -147,6 +162,16 @@ export class UsersService {
       };
 
       return result;
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  /*****************************
+   *********** ADMIN ***********
+   *****************************/
+  async updateUserLevel(user: User, uid: string, level: number) {
+    try {
     } catch (e) {
       throw new ApolloError(e);
     }

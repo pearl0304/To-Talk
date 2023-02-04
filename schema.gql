@@ -8,8 +8,11 @@ type User {
   displayName: String!
   photoURL: String
   intro: String
+  level: Int
   date_created: String
   date_updated: String
+  updated_by: ID
+  updater: User
   access_token: String
 }
 
@@ -21,6 +24,7 @@ type Mutation {
   createUser(input: UserInputType!): User!
   login(input: UserLoginInputType!): User!
   updateUserInfo(uid: ID!, input: UserUpdateInputType!): User!
+  updateUserLevel(uid: ID!, level: Int!): User!
 }
 
 input UserInputType {

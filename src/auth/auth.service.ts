@@ -37,6 +37,8 @@ export class AuthService {
         photoURL: user.photoURL ? user.photoURL : '',
         intro: user.intro ? user.intro : '',
         date_created: user.date_created,
+        date_updated: user.date_updated,
+        level: user.level,
       };
       return {
         access_token: this.jwtService.sign(payload),

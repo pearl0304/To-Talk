@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID, Int } from '@nestjs/graphql';
 import {
   User,
   UserInputType,
@@ -54,6 +54,24 @@ export class UsersResolver {
   ) {
     try {
       return this.usersService.updateUserInfo(user, uid, input);
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  /*****************************
+   *********** ADMIN ***********
+   *****************************/
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => User)
+  async updateUserLevel(
+    @CurrentUser() user: User,
+    @Args('uid', { type: () => ID }) uid: string,
+    @Args('level', { type: () => Int }) level: number,
+  ) {
+    try {
+      await this.usersService.updateUserLevel(user, uid, level);
     } catch (e) {
       throw new ApolloError(e);
     }
