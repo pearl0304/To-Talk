@@ -10,15 +10,18 @@ import {
 import { ApolloError } from 'apollo-server-express';
 import * as moment from 'moment-timezone';
 import * as bcrypt from 'bcrypt';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private userModel: Model<User>) {}
+  constructor(
+    @InjectModel('User') private userModel: Model<User>,
+    private readonly authService: AuthService,
+  ) {}
 
-  async findEmail(email: string) {
+  async findOneByEmail(email: string) {
     try {
-      const result = await this.userModel.findOne({ email: email }).exec();
-      if (result) throw new ApolloError('DUPLICATED EMAIL');
+      return await this.userModel.findOne({ email: email }).exec();
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -41,7 +44,8 @@ export class UsersService {
         delete user.password2;
       }
       // CHECK DUPLICATED EMAIL
-      await this.findEmail(user.email);
+      const check_email = await this.findOneByEmail(user.email);
+      if (check_email) throw new ApolloError('DUPLICATED EMAIL');
 
       // CREATE ACCOUNT
       const data = {
@@ -60,8 +64,25 @@ export class UsersService {
     }
   }
 
-  async login(user: UserLoginInputType) {
+  async login(input: UserLoginInputType) {
     try {
+      const user = await this.authService.validateUser(
+        input.email,
+        input.password,
+      );
+      if (!user) {
+        throw new ApolloError(`NO USER INFO`);
+      } else {
+        const access_token = await this.authService.generateUserCredentials(
+          user,
+        );
+        console.log('access_token => ', access_token);
+
+        user.uid = user._id;
+        user.access_token = access_token.access_token;
+
+        return user;
+      }
     } catch (e) {
       throw new ApolloError(e);
     }
