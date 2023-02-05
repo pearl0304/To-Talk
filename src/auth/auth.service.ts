@@ -30,18 +30,8 @@ export class AuthService {
 
   async generateUserCredentials(user: User) {
     try {
-      const payload = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL ? user.photoURL : '',
-        intro: user.intro ? user.intro : '',
-        date_created: user.date_created,
-        date_updated: user.date_updated,
-        level: user.level,
-      };
       return {
-        access_token: this.jwtService.sign(payload),
+        access_token: this.jwtService.sign(user),
       };
     } catch (e) {
       throw e;

@@ -42,7 +42,7 @@ export class User extends Document {
   intro: string;
 
   @Field(() => Int, { nullable: true })
-  level: string;
+  level: number;
 
   @Field(() => String, { nullable: true })
   date_created: string;

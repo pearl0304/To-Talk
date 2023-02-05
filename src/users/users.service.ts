@@ -23,7 +23,7 @@ export class UsersService {
 
   async findOneByEmail(email: string) {
     try {
-      return await this.userModel.findOne({ email: email }).exec();
+      return await this.userModel.findOne({ email: email }).lean();
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -31,9 +31,9 @@ export class UsersService {
 
   async findOneByUid(uid: string) {
     try {
-      return await this.userModel.findOne({ _id: uid }).exec();
+      return await this.userModel.findOne({ _id: uid }).lean();
     } catch (e) {
-      throw new ApolloError(e);
+      errorMessages('005');
     }
   }
 
@@ -113,8 +113,7 @@ export class UsersService {
     try {
       // CHECK USER INFO
       if (user.uid !== uid) errorMessages('004');
-      const check_user = await this.findOneByUid(uid);
-      if (!check_user) errorMessages('005');
+      await this.findOneByUid(uid);
 
       // UPDATE DISPLAY NAME
       if (input.displayName) {
@@ -155,10 +154,7 @@ export class UsersService {
 
       const result = {
         uid: uid,
-        email: user.email,
-        displayName: input.displayName ? input.displayName : user.displayName,
-        photoURL: input.photoURL ? input.photoURL : user.photoURL,
-        intro: input.intro ? input.intro : user.intro,
+        ...data,
       };
 
       return result;
@@ -172,6 +168,24 @@ export class UsersService {
    *****************************/
   async updateUserLevel(user: User, uid: string, level: number) {
     try {
+      if (user.level < 3) errorMessages('004');
+      await this.findOneByUid(uid);
+
+      const data = {
+        level: level,
+        updated_by: user.uid,
+        date_created: moment().utc().format(),
+      };
+
+      const result = await this.userModel.findOneAndUpdate(
+        { _id: uid },
+        { ...data },
+        { new: true },
+      );
+
+      result.uid = uid;
+
+      return result;
     } catch (e) {
       throw new ApolloError(e);
     }
