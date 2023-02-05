@@ -19,6 +19,7 @@ import { ApolloError } from 'apollo-server-express';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from './users.decorator';
+import { readableStreamLikeToAsyncGenerator } from 'rxjs/internal/util/isReadableStreamLike';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -30,6 +31,15 @@ export class UsersResolver {
         { uid: '1', email: 'apple@test.com', displayName: '돌아온애쁠' },
         { uid: '2', email: 'banan@test.com', displayName: '바나나반하나' },
       ];
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  @Query(() => User)
+  async findOneByUid(@Args('uid', { type: () => ID }) uid: string) {
+    try {
+      return await this.usersService.findOneByUid(uid);
     } catch (e) {
       throw new ApolloError(e);
     }
