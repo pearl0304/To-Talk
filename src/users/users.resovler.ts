@@ -20,7 +20,7 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from './users.decorator';
 
-@Resolver()
+@Resolver(() => User)
 export class UsersResolver {
   constructor(private usersService: UsersService) {}
   @Query(() => [User])
@@ -67,6 +67,19 @@ export class UsersResolver {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => User)
+  async deleteUser(
+    @CurrentUser() user: User,
+    @Args('uid', { type: () => ID }) uid: string,
+  ) {
+    try {
+      return await this.usersService.deleteUser(user, uid);
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
   /*****************************
    *********** ADMIN ***********
    *****************************/
@@ -85,15 +98,41 @@ export class UsersResolver {
     }
   }
 
-  /*****************************
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async deleteUserByAdmin(
+    @CurrentUser() user: User,
+    @Args('uid', { type: () => ID }) uid: string,
+  ) {
+    try {
+      return await this.usersService.deleteUserByAdmin(user, uid);
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  /************************************
    *********** ResolveField ***********
-   *****************************/
-  // @ResolveField()
-  // async updater(@CurrentUser() user: User) {
-  //   try {
-  //     console.log('user', user);
-  //   } catch (e) {
-  //     throw new ApolloError(e);
-  //   }
-  // }
+   ************************************/
+  @ResolveField()
+  async updater(@CurrentUser() user: User) {
+    try {
+      const proc = await this.usersService.findOneByUid(user.uid);
+      proc.uid = user.uid;
+      return proc;
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  @ResolveField()
+  async deleter(@CurrentUser() user: User) {
+    try {
+      const proc = await this.usersService.findOneByUid(user.uid);
+      proc.uid = user.uid;
+      return proc;
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
 }

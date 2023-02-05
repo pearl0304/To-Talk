@@ -5,7 +5,6 @@ import {
   User,
   UserInputType,
   UserLoginInputType,
-  UserSchema,
   UserUpdateInputType,
 } from '../schemas/user.schema';
 import { ApolloError } from 'apollo-server-express';
@@ -21,17 +20,34 @@ export class UsersService {
     private readonly authService: AuthService,
   ) {}
 
+  /**
+   * GET USER INFO BY EMAIL
+   * @param email
+   */
   async findOneByEmail(email: string) {
     try {
-      return await this.userModel.findOne({ email: email }).lean();
+      return await this.userModel
+        .findOne({ email: email, deleted: false })
+        .lean();
     } catch (e) {
-      throw new ApolloError(e);
+      errorMessages('005');
     }
   }
 
+  /**
+   * GET USER INFO BY UID
+   * @param uid
+   */
   async findOneByUid(uid: string) {
     try {
-      return await this.userModel.findOne({ _id: uid }).lean();
+      const result = await this.userModel
+        .findOne({ _id: uid, deleted: false })
+        .lean();
+      if (!result) {
+        return errorMessages('005');
+      } else {
+        return result;
+      }
     } catch (e) {
       errorMessages('005');
     }
@@ -62,6 +78,7 @@ export class UsersService {
         ...user,
         password: await bcrypt.hash(password, saltRounds),
         level: 1,
+        deleted: false,
         date_created: moment().utc().format(),
       };
 
@@ -163,9 +180,51 @@ export class UsersService {
     }
   }
 
-  /*****************************
-   *********** ADMIN ***********
-   *****************************/
+  /**
+   * UPDATE DELETED VALUE
+   * @param user
+   * @param uid
+   */
+  async deleteUser(user: User, uid: string) {
+    let deleted_by = '';
+    try {
+      if (user.uid !== uid && user.level < 2) errorMessages('004');
+      await this.findOneByUid(uid);
+
+      if (user.uid == uid) {
+        deleted_by = uid;
+      } else if (user.uid !== uid && user.level >= 2) {
+        deleted_by = user.uid;
+      }
+
+      const data = {
+        deleted: true,
+        deleted_by: deleted_by,
+        date_deleted: moment().utc().format(),
+      };
+
+      const result = await this.userModel
+        .findOneAndUpdate({ _id: uid }, { ...data }, { new: true })
+        .lean();
+
+      result.uid = uid;
+
+      return result;
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  /**************************************
+   *********** ONLY FOR ADMIN ***********
+   **************************************/
+
+  /**
+   * UPDATE USER'S LEVEL
+   * @param user
+   * @param uid
+   * @param level
+   */
   async updateUserLevel(user: User, uid: string, level: number) {
     try {
       if (user.level < 3) errorMessages('004');
@@ -186,6 +245,24 @@ export class UsersService {
       result.uid = uid;
 
       return result;
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+  }
+
+  /**
+   * DELETE USER DATA FROM DATABASE
+   * @param user
+   * @param uid
+   */
+  async deleteUserByAdmin(user: User, uid: string) {
+    try {
+      if (user.level < 3) errorMessages('004');
+      const proc = await this.userModel.findOne({ _id: uid, deleted: true });
+      if (!proc) errorMessages('005');
+
+      await this.userModel.deleteOne({ _id: uid });
+      return true;
     } catch (e) {
       throw new ApolloError(e);
     }

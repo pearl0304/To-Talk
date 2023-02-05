@@ -9,11 +9,15 @@ type User {
   photoURL: String
   intro: String
   level: Int
+  deleted: Boolean
+  updated_by: ID
+  deleted_by: ID
+  updater: User
+  deleter: User
+  access_token: String
   date_created: String
   date_updated: String
-  updated_by: ID
-  updater: User
-  access_token: String
+  date_deleted: String
 }
 
 type Query {
@@ -24,7 +28,9 @@ type Mutation {
   createUser(input: UserInputType!): User!
   login(input: UserLoginInputType!): User!
   updateUserInfo(uid: ID!, input: UserUpdateInputType!): User!
+  deleteUser(uid: ID!): User!
   updateUserLevel(uid: ID!, level: Int!): User!
+  deleteUserByAdmin(uid: ID!): Boolean!
 }
 
 input UserInputType {

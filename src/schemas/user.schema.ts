@@ -19,9 +19,12 @@ export const UserSchema = new mongoose.Schema({
   intro: String,
   level: Number,
   updated_by: String,
+  deleted_by: String,
   access_token: String,
+  deleted: Boolean,
   date_created: String,
   date_updated: String,
+  date_deleted: String,
 });
 
 @ObjectType()
@@ -44,20 +47,32 @@ export class User extends Document {
   @Field(() => Int, { nullable: true })
   level: number;
 
+  @Field(() => Boolean, { nullable: true })
+  deleted: boolean;
+
+  @Field(() => ID, { nullable: true })
+  updated_by: string;
+
+  @Field(() => ID, { nullable: true })
+  deleted_by: string;
+
+  @Field(() => User, { nullable: true })
+  updater: User;
+
+  @Field(() => User, { nullable: true })
+  deleter: User;
+
+  @Field(() => String, { nullable: true })
+  access_token: string;
+
   @Field(() => String, { nullable: true })
   date_created: string;
 
   @Field(() => String, { nullable: true })
   date_updated: string;
 
-  @Field(() => ID, { nullable: true })
-  updated_by: string;
-
-  @Field(() => User, { nullable: true })
-  updater: User;
-
   @Field(() => String, { nullable: true })
-  access_token: string;
+  date_deleted: string;
 
   password: string;
 }
