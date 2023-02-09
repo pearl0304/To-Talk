@@ -19,7 +19,6 @@ import { ApolloError } from 'apollo-server-express';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from './users.decorator';
-import { readableStreamLikeToAsyncGenerator } from 'rxjs/internal/util/isReadableStreamLike';
 
 @Resolver(() => User)
 export class UsersResolver {
