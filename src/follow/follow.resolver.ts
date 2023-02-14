@@ -1,14 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  ID,
-  Int,
-  ResolveField,
-  Parent,
-} from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField } from '@nestjs/graphql';
 import {
   Follow,
   FollowInputType,
