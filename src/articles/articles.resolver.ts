@@ -1,10 +1,13 @@
 import { Resolver, Query, Mutation, Args, ResolveField } from '@nestjs/graphql';
-import { Article } from '../schemas/article.schema';
+import { Article, ArticleInputType } from '../schemas/article.schema';
 import { ArticlesService } from './articles.service';
 import { ApolloError } from 'apollo-server-express';
 import { User } from '../schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { CurrentUser } from '../users/users.decorator';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { errorMessages } from '../errorMessages';
 
 @Resolver(() => Article)
 export class ArticlesResolver {
@@ -20,7 +23,7 @@ export class ArticlesResolver {
     @Args('q') q: string,
   ) {
     try {
-      return this.articleService.findAllArticles(offset, limit, q);
+      return await this.articleService.findAllArticles(offset, limit, q);
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -42,36 +45,47 @@ export class ArticlesResolver {
   }
 
   @Query(() => Article)
-  async findArticleById() {
+  async findArticleById(@Args('id') id: string) {
     try {
-      return this.articleService.findArticleById();
+      return await this.articleService.findArticleById(id);
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Article)
-  async createArticle() {
+  async createArticle(@Args('input') input: ArticleInputType) {
     try {
-      return this.articleService.createArticle();
+      return await this.articleService.createArticle(input);
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Article)
-  async updateArticle() {
-    return this.articleService.updateArticle();
+  async updateArticle(
+    @Args('id') id: string,
+    @Args('input') input: ArticleInputType,
+    @CurrentUser() user: User,
+  ) {
     try {
+      // CHECK USER
+      if (user.uid !== input.uid && user.level !== 3) {
+        errorMessages('004');
+      }
+      return await this.articleService.updateArticle(id, input);
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Article)
-  async deleteArticle() {
-    return this.articleService.deleteArticle();
+  async deleteArticle(@Args('id') id: string, @CurrentUser() user: User) {
     try {
+      return await this.articleService.deleteArticle(id, user);
     } catch (e) {
       throw new ApolloError(e);
     }

@@ -13,10 +13,13 @@ export const errorMessages = (code: string) => {
       message = 'DUPLICATED DISPLAY NAME';
       break;
     case '004':
-      message = `YOU DON"T NOT HAVE ACCESS`;
+      message = `YOU DO NOT HAVE ACCESS`;
       break;
     case '005':
       message = 'NO USER INFO';
+      break;
+    case '006':
+      message = 'NO ARTICLE INFO';
   }
   throw new ApolloError(message);
 };

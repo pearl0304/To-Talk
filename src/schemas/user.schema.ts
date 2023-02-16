@@ -1,3 +1,9 @@
+/**
+ * level 1 : 일반 유저 (default)
+ * level 2 : 관리자 (수정, 삭제 권한)
+ * level 3 : 수퍼관리자 (수정, 삭제, 권한 변경)
+ * **/
+
 import {
   Field,
   ID,

@@ -20,6 +20,7 @@ export const ArticleSchema = new mongoose.Schema({
   date_created: String,
   date_updated: String,
   date_deleted: String,
+  log: String,
 });
 
 @ObjectType()
@@ -53,6 +54,9 @@ export class Article extends Document {
 
   @Field(() => String, { nullable: true })
   date_deleted: string;
+
+  @Field(() => String, { nullable: true })
+  log: string;
 }
 
 @ArgsType()
