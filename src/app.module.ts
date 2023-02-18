@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ArticlesModule } from './articles/articles.module';
 import { FollowModule } from './follow/follow.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { FollowModule } from './follow/follow.module';
     AuthModule,
     ArticlesModule,
     FollowModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [],

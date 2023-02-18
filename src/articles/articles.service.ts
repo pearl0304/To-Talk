@@ -6,10 +6,14 @@ import { ApolloError } from 'apollo-server-express';
 import moment from 'moment-timezone';
 import { errorMessages } from '../errorMessages';
 import { User } from '../schemas/user.schema';
+import { Comment } from '../schemas/comment.schema';
 
 @Injectable()
 export class ArticlesService {
-  constructor(@InjectModel('Article') private articleModel: Model<Article>) {}
+  constructor(
+    @InjectModel('Article') private articleModel: Model<Article>,
+    @InjectModel('Comment') private commentModel: Model<Comment>,
+  ) {}
 
   /**
    * GET ALL ARTICLES EXCEPT WAS DELETED BY SOMEONE
@@ -161,7 +165,7 @@ export class ArticlesService {
       const proc = await this.findArticleById(id);
 
       // CHECK USER
-      if (proc.uid !== user.uid && user.level !== 3) {
+      if (proc.uid !== user.uid && user.level < 2) {
         errorMessages('004');
       }
 
@@ -174,6 +178,18 @@ export class ArticlesService {
       await this.articleModel.findOneAndUpdate(
         { _id: id },
         { ...data },
+        { new: true },
+      );
+
+      // DELETE RELATED DATA
+      const comment_data = {
+        is_deleted: true,
+        date_deleted: moment().utc().format(),
+        log: `${moment().utc().format()}, article was deleted`,
+      };
+      await this.commentModel.updateMany(
+        { articleId: id },
+        { ...comment_data },
         { new: true },
       );
 

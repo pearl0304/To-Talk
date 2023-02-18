@@ -20,6 +20,8 @@ export const errorMessages = (code: string) => {
       break;
     case '006':
       message = 'NO ARTICLE INFO';
+    case '007':
+      message = 'NO COMMENT INFO';
   }
   throw new ApolloError(message);
 };

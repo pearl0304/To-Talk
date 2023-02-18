@@ -72,7 +72,7 @@ export class ArticlesResolver {
   ) {
     try {
       // CHECK USER
-      if (user.uid !== input.uid && user.level !== 3) {
+      if (user.uid !== input.uid && user.level < 2) {
         errorMessages('004');
       }
       return await this.articleService.updateArticle(id, input);

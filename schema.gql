@@ -20,9 +20,23 @@ type User {
   date_deleted: String
 }
 
+type Comment {
+  id: ID!
+  uid: ID!
+  articleId: ID!
+  comment: ID!
+  date_created: ID
+  date_updated: ID
+  date_deleted: ID
+  is_deleted: ID
+  log: ID
+}
+
 type Query {
   findAll: [User!]!
   findOneByUid(uid: ID!): User!
+  findCommentsList(articleId: String!, offset: Float!, limit: Float!): [Comment!]!
+  findCommentByID(id: String!, articleId: String!): Comment!
 }
 
 type Mutation {
@@ -32,6 +46,9 @@ type Mutation {
   deleteUser(uid: ID!): User!
   updateUserLevel(uid: ID!, level: Int!): User!
   deleteUserByAdmin(uid: ID!): Boolean!
+  createComment(input: CommentInputType!): Comment!
+  updateComment(input: CommentInputType!): Comment!
+  deleteComment(id: String!): Comment!
 }
 
 input UserInputType {
@@ -55,4 +72,11 @@ input UserUpdateInputType {
   password1: String
   password2: String
   password: String
+}
+
+input CommentInputType {
+  id: ID
+  uid: ID!
+  articleId: ID!
+  comment: ID!
 }

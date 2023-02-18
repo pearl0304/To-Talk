@@ -9,6 +9,7 @@ import {
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
 import { User } from './user.schema';
+import { Comment } from './comment.schema';
 
 export const ArticleSchema = new mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
