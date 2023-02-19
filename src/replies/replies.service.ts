@@ -1,75 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 import { ApolloError } from 'apollo-server-express';
-import moment from 'moment-timezone';
+import { Reply, ReplyInputType } from '../schemas/reply.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { errorMessages } from '../errorMessages';
-import { Comment, CommentInputType } from '../schemas/comment.schema';
-import { User } from '../schemas/user.schema';
+import moment from 'moment-timezone';
 
 @Injectable()
-export class CommentsService {
-  constructor(@InjectModel('Comment') private commentModel: Model<Comment>) {}
+export class RepliesService {
+  constructor(@InjectModel('Reply') private replyModel: Model<Reply>) {}
 
-  /**
-   * GET ONE ARTICLE'S COMMENTS LIST
-   * @param articleId
-   * @param offset
-   * @param limit
-   */
-  async findCommentsList(articleId: string, offset: number, limit: number) {
+  async findCommentReplyList(commentId: string, offset: number, limit: number) {
     try {
-      const proc = await this.commentModel
-        .find({ articleId: articleId, is_deleted: false })
+      const proc = await this.replyModel
+        .find({
+          commentId: commentId,
+          is_deleted: false,
+        })
         .skip(offset * limit)
         .sort({ date_created: -1 })
         .limit(limit)
         .lean();
-
       const result = proc.map((data) => {
         return {
           id: data._id,
           ...data,
         };
-
-        return result;
       });
+
+      return result;
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
-  /**
-   * GET ONE COMMENT BY ID
-   * @param id
-   */
-  async findCommentByID(id: string) {
+  async findReplyById(id: string) {
     try {
-      const result = await this.commentModel
-        .findOne({ _id: id, is_deleted: false })
-        .lean();
+      const result = await this.replyModel.findById({ _id: id }).lean();
+      if (!result) errorMessages('008');
       return {
+        id: result._id,
         ...result,
       };
     } catch (e) {
-      throw new ApolloError(e);
+      errorMessages('008');
     }
   }
 
-  /**
-   * CREATE COMMENT
-   * @param input
-   */
-  async createComment(input: CommentInputType) {
+  async createReply(input: ReplyInputType) {
     try {
       const data = {
         ...input,
         date_created: moment().utc().format(),
         is_deleted: false,
-        log: `${moment().utc().format()},${input.uid}, write new comment`,
+        log: `${moment().utc().format()}, ${input.uid} create reply`,
       };
 
-      const result = await this.commentModel.create(data);
+      const result = await this.replyModel.create(data);
       return {
         id: result._id,
         ...data,
@@ -79,11 +66,7 @@ export class CommentsService {
     }
   }
 
-  /**
-   * Update Comment
-   * @param input
-   */
-  async updateComment(input) {
+  async updateReply(input: ReplyInputType) {
     try {
       const data = {
         ...input,
@@ -91,7 +74,7 @@ export class CommentsService {
         log: `${moment().utc().format()},${input.uid}, update comment`,
       };
 
-      await this.commentModel
+      await this.replyModel
         .findOneAndUpdate({ _id: input.id }, { ...data }, { new: true })
         .lean();
 
@@ -101,11 +84,7 @@ export class CommentsService {
     }
   }
 
-  /**
-   * DELETE COMMENT
-   * @param id
-   */
-  async deleteComment(id: string) {
+  async deleteReply(id: string) {
     try {
       const data = {
         is_deleted: true,
@@ -113,7 +92,7 @@ export class CommentsService {
         log: `${moment().utc().format()}, deleted comment`,
       };
 
-      await this.commentModel.findOneAndUpdate(
+      await this.replyModel.findOneAndUpdate(
         { _id: id },
         { ...data },
         { new: true },

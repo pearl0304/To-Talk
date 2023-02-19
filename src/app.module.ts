@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ArticlesModule } from './articles/articles.module';
 import { FollowModule } from './follow/follow.module';
 import { CommentsModule } from './comments/comments.module';
+import { RepliesModule } from './replies/replies.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { CommentsModule } from './comments/comments.module';
     ArticlesModule,
     FollowModule,
     CommentsModule,
+    RepliesModule,
   ],
   controllers: [],
   providers: [],

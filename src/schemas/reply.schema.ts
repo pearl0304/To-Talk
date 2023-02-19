@@ -2,11 +2,11 @@ import { Field, ID, ObjectType, ArgsType, InputType } from '@nestjs/graphql';
 import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
 
-export const CommentSchema = new mongoose.Schema({
+export const ReplySchema = new mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
   uid: String,
-  articleId: String,
-  comment: String,
+  commentId: String,
+  reply: String,
   date_created: String,
   date_updated: String,
   date_deleted: String,
@@ -15,7 +15,7 @@ export const CommentSchema = new mongoose.Schema({
 });
 
 @ObjectType()
-export class Comment extends Document {
+export class Reply extends Document {
   @Field(() => ID)
   id: string;
 
@@ -23,10 +23,10 @@ export class Comment extends Document {
   uid: string;
 
   @Field(() => ID)
-  articleId: string;
+  commentId: string;
 
   @Field(() => ID)
-  comment: string;
+  reply: string;
 
   @Field(() => ID, { nullable: true })
   date_created: string;
@@ -46,7 +46,7 @@ export class Comment extends Document {
 
 @ArgsType()
 @InputType()
-export class CommentInputType {
+export class ReplyInputType {
   @Field(() => ID, { nullable: true })
   id: string;
 
@@ -54,8 +54,8 @@ export class CommentInputType {
   uid: string;
 
   @Field(() => ID)
-  articleId: string;
+  commentId: string;
 
   @Field(() => ID)
-  comment: string;
+  reply: string;
 }

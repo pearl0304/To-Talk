@@ -32,11 +32,25 @@ type Comment {
   log: ID
 }
 
+type Reply {
+  id: ID!
+  uid: ID!
+  commentId: ID!
+  reply: ID!
+  date_created: ID
+  date_updated: ID
+  date_deleted: ID
+  is_deleted: ID
+  log: ID
+}
+
 type Query {
   findAll: [User!]!
   findOneByUid(uid: ID!): User!
   findCommentsList(articleId: String!, offset: Float!, limit: Float!): [Comment!]!
   findCommentByID(id: String!, articleId: String!): Comment!
+  findCommentReplyList(commentId: String!, offset: Float!, limit: Float!): [Reply!]!
+  findReply(id: String!): Reply!
 }
 
 type Mutation {
@@ -49,6 +63,9 @@ type Mutation {
   createComment(input: CommentInputType!): Comment!
   updateComment(input: CommentInputType!): Comment!
   deleteComment(id: String!): Comment!
+  createReply(input: ReplyInputType!): Reply!
+  updateReply(input: ReplyInputType!): Reply!
+  deleteReply(id: String!): Reply!
 }
 
 input UserInputType {
@@ -79,4 +96,11 @@ input CommentInputType {
   uid: ID!
   articleId: ID!
   comment: ID!
+}
+
+input ReplyInputType {
+  id: ID
+  uid: ID!
+  commentId: ID!
+  reply: ID!
 }

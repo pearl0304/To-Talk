@@ -1,9 +1,5 @@
 import { Resolver, Query, Mutation, Args, ResolveField } from '@nestjs/graphql';
-import {
-  Comment,
-  CommentFindType,
-  CommentInputType,
-} from '../schemas/comment.schema';
+import { Comment, CommentInputType } from '../schemas/comment.schema';
 import { ArticlesService } from '../articles/articles.service';
 import { UsersService } from '../users/users.service';
 import { ApolloError } from 'apollo-server-express';
